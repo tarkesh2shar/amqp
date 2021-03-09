@@ -8,18 +8,29 @@ services:
     volumes:
       - mongo-data:/data/db
     ports:
-      - "27017:27017"
+      - 27017:27017
   server:
     build: .
     restart: on-failure
     working_dir: /usr/app
     container_name: server
     ports:
-      - "5000:5000"
+      - 5000:5000
     volumes:
       - ./:/usr/app
       - /usr/app/node_modules
+    env_file:
+      - .env
     depends_on:
       - mongodb
+      - rabbitmq
+  rabbitmq:
+    image: rabbitmq
+    container_name: rabbitmq
+    restart: always
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    hostname: rabbit
 volumes:
   mongo-data:
+  rabbitmq-data:

@@ -7,12 +7,10 @@ interface UserDoc extends Document {
   createdAt: string;
   updatedAtAt: string;
 
-  comparePassword(password: string): boolean;
+  comparePassword(password: string): Promise<boolean>;
 }
 
-interface UserModel extends Model<UserDoc> {
-  // comparePassword(password: string): boolean;
-}
+interface UserModel extends Model<UserDoc> {}
 
 const UserSchema = new Schema({
   email   : String,
@@ -40,8 +38,7 @@ UserSchema.pre("save", async function (next) {
   next();
 });
 
-UserSchema.methods.comparePassword = async function (password: string):
-  Promise<boolean> {
+UserSchema.methods.comparePassword = async function (password: string): Promise<boolean> {
   return await bcrypt.compare(password, this.get("password"));
 };
 

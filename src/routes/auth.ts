@@ -1,8 +1,10 @@
-import { Router }          from "express";
-import { User }            from "../models/User";
-import createError         from "http-errors";
-import { guest }           from "../middlewares/guest";
-import { isAuthenticated } from "../middlewares/isAuthenticated";
+import { Router }             from "express";
+import { User }               from "../models/User";
+import createError            from "http-errors";
+import { guest }              from "../middlewares/guest";
+import { isAuthenticated }    from "../middlewares/isAuthenticated";
+import { amqpWrapper }        from "../amqp-wrapper";
+import { UserSignupProducer } from "../mq";
 
 const router = Router();
 
@@ -23,6 +25,9 @@ router.post("/signup", guest, async (req, res, next) => {
   }
 
   const user = await User.create({ email, password });
+
+  new UserSignupProducer(amqpWrapper.connection)
+    .sendToQueue({ email: user.email });
 
   req.session = { user };
 
