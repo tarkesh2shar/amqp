@@ -10,7 +10,11 @@ export class UserSignupConsumer extends BaseConsumer<UserSignupEvent> {
   async onMessage({ email }: UserSignupEvent["data"], message: ConsumeMessage) {
     this.ensureChannelIsInitialized();
 
-    await sendWelcomeMail(email);
-    this.channel!.ack(message);
+    const sent = await sendWelcomeMail(email);
+    if (sent) {
+      this.channel!.ack(message);
+    } else {
+      this.channel!.reject(message, true);
+    }
   }
 }

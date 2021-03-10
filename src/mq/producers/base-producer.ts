@@ -20,7 +20,7 @@ export abstract class BaseProducer<T extends Event> {
 
   async init() {
     this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue(this.queue, { durable: true });
+    await this.channel.assertQueue(this.queue, { durable: true }); // ensure queue isn't deleted when serve restarts
   }
 
   async sendToQueue(data: T["data"]) {

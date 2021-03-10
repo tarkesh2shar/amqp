@@ -1,6 +1,6 @@
 import { Channel, Connection, ConsumeMessage } from "amqplib";
-import consola    from "consola";
-import { Queues } from "../types/queues";
+import consola                                 from "consola";
+import { Queues }                              from "../types/queues";
 
 interface Event {
   queue: Queues;
@@ -21,7 +21,10 @@ export abstract class BaseConsumer<T extends Event> {
 
   async listen() {
     this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue(this.queue);
+    await this.channel.assertQueue(this.queue, { durable: true });
+
+    // Only request 1 unacked message from queue
+    // This value indicates how many messages we want to process in parallel
     await this.channel.prefetch(1);
     consola.info(`[${ this.queue }] Listening for messages!`);
 
